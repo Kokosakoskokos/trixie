@@ -1,0 +1,25 @@
+{
+  "Class": "rviz::DisplayConfig",
+  "Displays": [
+    {
+      "Class": "rviz/Grid",
+      "Name": "Grid",
+      "Value": true
+    },
+    {
+      "Class": "rviz/RobotModel",
+      "Name": "Robot Model",
+      "Robot Description": "robot_description",
+      "Value": true
+    },
+    {
+      "Class": "rviz/TF",
+      "Name": "TF",
+      "Value": true
+    }
+  ],
+  "Global Options": {
+    "Background Color": "48; 48; 48",
+    "Fixed Frame": "base_link"
+  }
+}
