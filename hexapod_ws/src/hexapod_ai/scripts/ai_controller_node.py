@@ -75,15 +75,15 @@ class AIControllerNode(Node):
         command = msg.data.lower().strip()
         
         # User-friendly command aliases
-        enable_commands = ['enable', 'start', 'on', 'autopilot on', 'auto on', 'begin']
-        disable_commands = ['disable', 'stop', 'off', 'autopilot off', 'auto off', 'pause', 'manual']
+        enable_commands = ['start', 'on', 'autopilot on', 'auto on', 'begin']
+        disable_commands = ['stop', 'off', 'autopilot off', 'auto off', 'pause', 'manual']
         
         if command in enable_commands:
             self.enabled = True
-            self.get_logger().info('🤖 AI autopilot ENABLED - Robot will make its own decisions')
+            self.get_logger().info('AI autopilot ENABLED - Robot will make its own decisions')
         elif command in disable_commands:
             self.enabled = False
-            self.get_logger().info('👤 MANUAL mode - You are in control')
+            self.get_logger().info('MANUAL mode - You are in control')
             # Stop the robot for safety
             self.publish_velocity(0.0, 0.0, 0.0)
         elif command.startswith('chat:') or command.startswith('ask:'):
@@ -93,7 +93,7 @@ class AIControllerNode(Node):
             if response:
                 self.get_logger().info(f'AI: {response}')
         else:
-            self.get_logger().warn(f'Unknown command: {command}. Try: start/stop/auto on/auto off')
+            self.get_logger().warn(f'Unknown command: {command}. Try: start/stop/autopilot on/autopilot off')
     
     def timer_callback(self):
         """Make AI decision and publish command."""

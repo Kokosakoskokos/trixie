@@ -68,13 +68,13 @@ class CzechCommandParser:
         'enable': [
             'autopilot', 'autopilot zapni', 'autopilot on',
             'auto režim', 'autonomní režim', 'sám jeď',
-            'zapni autopilota', ' začni samostatně jezdit',
+            'zapni autopilota', 'začni samostatně jezdit',
             'ai zapni', 'zapni ai', 'umělá inteligence'
         ],
         'disable': [
             'manuální režim', 'řídím já', 'sám řídím',
             'autopilot vypni', 'autopilot off', 'auto vypni',
-            'vypni autopilota', 'převem řízení', 
+            'vypni autopilota', 'převezmi řízení', 
             'ai vypni', 'vypni ai', 'konec autopilota'
         ],
     }

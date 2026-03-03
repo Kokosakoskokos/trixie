@@ -8,7 +8,7 @@ A fully-featured hexapod walking robot powered by ROS2 Humble, running on Raspbe
 
 - **18 DOF Legs** - 6 legs with 3 servos each (MG995)
 - **Multiple Gaits** - Tripod (fast) and Wave (stable) walking patterns
-- **AI Control** - OpenRouter integration for intelligent decision making
+- **AI Autopilot** - OpenRouter integration for intelligent decision making
 - **Person Tracking** - Computer vision-based person detection and following
 - **Voice Commands** - Czech language support for voice/text control
 - **Web Dashboard** - Real-time monitoring and control interface

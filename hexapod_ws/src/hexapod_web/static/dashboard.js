@@ -237,14 +237,14 @@ class HexapodDashboard {
         document.getElementById('ai-enable').addEventListener('click', () => {
             this.sendAICommand('autopilot on');
             this.aiEnabled = true;
-            this.log('🤖 Autopilot ENABLED - Robot is driving itself', 'info');
+            this.log('Autopilot ENABLED - Robot is driving itself', 'info');
             this.updateAutopilotUI(true);
         });
         
         document.getElementById('ai-disable').addEventListener('click', () => {
             this.sendAICommand('manual');
             this.aiEnabled = false;
-            this.log('👤 MANUAL mode - You are in control', 'info');
+            this.log('MANUAL mode - You are in control', 'info');
             this.updateAutopilotUI(false);
         });
         
@@ -531,13 +531,13 @@ class HexapodDashboard {
         if (enabled) {
             autoBtn.classList.add('active');
             manualBtn.classList.remove('active');
-            autoBtn.innerHTML = '🟢 Auto ON';
+            autoBtn.innerHTML = 'Auto ON';
             manualBtn.innerHTML = 'Manual';
         } else {
             autoBtn.classList.remove('active');
             manualBtn.classList.add('active');
             autoBtn.innerHTML = 'Auto ON';
-            manualBtn.innerHTML = '🔴 Manual';
+            manualBtn.innerHTML = 'Manual';
         }
     }
 }
