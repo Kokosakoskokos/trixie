@@ -1,0 +1,228 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hexapod">
+
+  <!-- Properties -->
+  <xacro:property name="body_length" value="0.20"/>
+  <xacro:property name="body_width" value="0.12"/>
+  <xacro:property name="body_height" value="0.04"/>
+  <xacro:property name="body_mass" value="0.8"/>
+
+  <!-- Coxa (hip) dimensions -->
+  <xacro:property name="coxa_length" value="0.035"/>
+  <xacro:property name="coxa_width" value="0.025"/>
+  <xacro:property name="coxa_mass" value="0.05"/>
+
+  <!-- Femur (thigh) dimensions -->
+  <xacro:property name="femur_length" value="0.065"/>
+  <xacro:property name="femur_width" value="0.015"/>
+  <xacro:property name="femur_mass" value="0.08"/>
+
+  <!-- Tibia (shin) dimensions -->
+  <xacro:property name="tibia_length" value="0.100"/>
+  <xacro:property name="tibia_width" value="0.012"/>
+  <xacro:property name="tibia_mass" value="0.06"/>
+
+  <!-- Materials -->
+  <material name="body_color">
+    <color rgba="0.2 0.2 0.3 1.0"/>
+  </material>
+  <material name="leg_color">
+    <color rgba="0.4 0.4 0.4 1.0"/>
+  </material>
+  <material name="joint_color">
+    <color rgba="0.1 0.1 0.1 1.0"/>
+  </material>
+
+  <!-- Base Link -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${body_length} ${body_width} ${body_height}"/>
+      </geometry>
+      <material name="body_color"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${body_length} ${body_width} ${body_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="${body_mass}"/>
+      <inertia ixx="${body_mass*(body_width*body_width + body_height*body_height)/12}"
+               iyy="${body_mass*(body_length*body_length + body_height*body_height)/12}"
+               izz="${body_mass*(body_length*body_length + body_width*body_width)/12}"
+               ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <!-- IMU Link -->
+  <link name="imu_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.02 0.02 0.005"/>
+      </geometry>
+      <material name="joint_color"/>
+    </visual>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 ${body_height/2 + 0.003}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Leg Macro -->
+  <xacro:macro name="leg" params="leg_id side front x y angle">
+    <!-- Coxa joint (hip rotation) -->
+    <link name="leg_${leg_id}_coxa">
+      <visual>
+        <origin xyz="${coxa_length/2} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${coxa_length} ${coxa_width} ${coxa_width}"/>
+        </geometry>
+        <material name="leg_color"/>
+      </visual>
+      <collision>
+        <origin xyz="${coxa_length/2} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${coxa_length} ${coxa_width} ${coxa_width}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="${coxa_length/2} 0 0" rpy="0 0 0"/>
+        <mass value="${coxa_mass}"/>
+        <inertia ixx="${coxa_mass*(coxa_width*coxa_width + coxa_width*coxa_width)/12}"
+                 iyy="${coxa_mass*(coxa_length*coxa_length + coxa_width*coxa_width)/12}"
+                 izz="${coxa_mass*(coxa_length*coxa_length + coxa_width*coxa_width)/12}"
+                 ixy="0" ixz="0" iyz="0"/>
+      </inertial>
+    </link>
+
+    <joint name="leg_${leg_id}_coxa_joint" type="revolute">
+      <parent link="base_link"/>
+      <child link="leg_${leg_id}_coxa"/>
+      <origin xyz="${x} ${y} 0" rpy="0 0 ${angle}"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-1.57" upper="1.57" effort="2.0" velocity="8.0"/>
+    </joint>
+
+    <!-- Femur (thigh) -->
+    <link name="leg_${leg_id}_femur">
+      <visual>
+        <origin xyz="${femur_length/2} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${femur_length} ${femur_width} ${femur_width}"/>
+        </geometry>
+        <material name="leg_color"/>
+      </visual>
+      <collision>
+        <origin xyz="${femur_length/2} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${femur_length} ${femur_width} ${femur_width}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="${femur_length/2} 0 0" rpy="0 0 0"/>
+        <mass value="${femur_mass}"/>
+        <inertia ixx="${femur_mass*(femur_width*femur_width + femur_width*femur_width)/12}"
+                 iyy="${femur_mass*(femur_length*femur_length + femur_width*femur_width)/12}"
+                 izz="${femur_mass*(femur_length*femur_length + femur_width*femur_width)/12}"
+                 ixy="0" ixz="0" iyz="0"/>
+      </inertial>
+    </link>
+
+    <joint name="leg_${leg_id}_femur_joint" type="revolute">
+      <parent link="leg_${leg_id}_coxa"/>
+      <child link="leg_${leg_id}_femur"/>
+      <origin xyz="${coxa_length} 0 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-1.57" upper="1.57" effort="2.0" velocity="8.0"/>
+    </joint>
+
+    <!-- Tibia (shin) -->
+    <link name="leg_${leg_id}_tibia">
+      <visual>
+        <origin xyz="${tibia_length/2} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${tibia_length} ${tibia_width} ${tibia_width}"/>
+        </geometry>
+        <material name="leg_color"/>
+      </visual>
+      <collision>
+        <origin xyz="${tibia_length/2} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${tibia_length} ${tibia_width} ${tibia_width}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="${tibia_length/2} 0 0" rpy="0 0 0"/>
+        <mass value="${tibia_mass}"/>
+        <inertia ixx="${tibia_mass*(tibia_width*tibia_width + tibia_width*tibia_width)/12}"
+                 iyy="${tibia_mass*(tibia_length*tibia_length + tibia_width*tibia_width)/12}"
+                 izz="${tibia_mass*(tibia_length*tibia_length + tibia_width*tibia_width)/12}"
+                 ixy="0" ixz="0" iyz="0"/>
+      </inertial>
+    </link>
+
+    <joint name="leg_${leg_id}_tibia_joint" type="revolute">
+      <parent link="leg_${leg_id}_femur"/>
+      <child link="leg_${leg_id}_tibia"/>
+      <origin xyz="${femur_length} 0 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-2.0" upper="0.5" effort="2.0" velocity="8.0"/>
+    </joint>
+
+    <!-- Foot tip -->
+    <link name="leg_${leg_id}_foot">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="0.005"/>
+        </geometry>
+        <material name="joint_color"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="0.005"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="leg_${leg_id}_foot_joint" type="fixed">
+      <parent link="leg_${leg_id}_tibia"/>
+      <child link="leg_${leg_id}_foot"/>
+      <origin xyz="${tibia_length} 0 0" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- Define 6 legs -->
+  <!-- Leg 0: Front Left -->
+  <xacro:leg leg_id="0" side="left" front="true"
+             x="${body_length/3}" y="${body_width/2 + coxa_width/2}" angle="0.785"/>
+
+  <!-- Leg 1: Middle Left -->
+  <xacro:leg leg_id="1" side="left" front="false"
+             x="0" y="${body_width/2 + coxa_width/2}" angle="1.571"/>
+
+  <!-- Leg 2: Rear Left -->
+  <xacro:leg leg_id="2" side="left" front="false"
+             x="${-body_length/3}" y="${body_width/2 + coxa_width/2}" angle="2.356"/>
+
+  <!-- Leg 3: Rear Right -->
+  <xacro:leg leg_id="3" side="right" front="false"
+             x="${-body_length/3}" y="${-body_width/2 - coxa_width/2}" angle="-2.356"/>
+
+  <!-- Leg 4: Middle Right -->
+  <xacro:leg leg_id="4" side="right" front="false"
+             x="0" y="${-body_width/2 - coxa_width/2}" angle="-1.571"/>
+
+  <!-- Leg 5: Front Right -->
+  <xacro:leg leg_id="5" side="right" front="true"
+             x="${body_length/3}" y="${-body_width/2 - coxa_width/2}" angle="-0.785"/>
+
+</robot>

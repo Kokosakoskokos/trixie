@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexapod Robot Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: #16213e;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #0f3460;
+        }
+        
+        .header h1 {
+            color: #e94560;
+            font-size: 1.8rem;
+        }
+        
+        .connection-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 1rem;
+        }
+        
+        .connected {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+        
+        .disconnected {
+            background: #e94560;
+            color: white;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #0f3460;
+        }
+        
+        .panel h2 {
+            color: #00d9ff;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .sensor-card {
+            background: #0f3460;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .sensor-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sensor-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00d9ff;
+        }
+        
+        .sensor-unit {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .control-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .control-section h3 {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+        }
+        
+        .d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 5px;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .d-btn {
+            background: #0f3460;
+            border: 2px solid #00d9ff;
+            color: #00d9ff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .d-btn:hover {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+        
+        .d-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .d-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .d-up { grid-column: 2; grid-row: 1; }
+        .d-left { grid-column: 1; grid-row: 2; }
+        .d-stop { grid-column: 2; grid-row: 2; background: #e94560; border-color: #e94560; color: white; }
+        .d-right { grid-column: 3; grid-row: 2; }
+        .d-down { grid-column: 2; grid-row: 3; }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+        
+        .btn-secondary {
+            background: #0f3460;
+            color: #eee;
+            border: 1px solid #00d9ff;
+        }
+        
+        .btn-danger {
+            background: #e94560;
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.8;
+        }
+        
+        .btn.active {
+            box-shadow: 0 0 10px #00d9ff;
+        }
+        
+        .log-container {
+            background: #0a0a14;
+            border-radius: 8px;
+            padding: 1rem;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.3rem;
+            padding: 0.2rem 0;
+        }
+        
+        .log-time {
+            color: #666;
+        }
+        
+        .log-info { color: #00d9ff; }
+        .log-warn { color: #ffaa00; }
+        .log-error { color: #e94560; }
+        .log-ai { color: #aa66ff; }
+        
+        .imu-viz {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+        }
+        
+        .imu-axis {
+            text-align: center;
+        }
+        
+        .bar-container {
+            width: 60px;
+            height: 100px;
+            background: #0a0a14;
+            border-radius: 4px;
+            position: relative;
+            margin: 0.5rem 0;
+        }
+        
+        .bar {
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            right: 0;
+            background: #00d9ff;
+            transition: height 0.3s, bottom 0.3s;
+        }
+        
+        .bar.negative {
+            bottom: auto;
+            top: 50%;
+        }
+        
+        .slider-container {
+            margin: 1rem 0;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #0f3460;
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            width: 18px;
+            height: 18px;
+            background: #00d9ff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .speed-display {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #00d9ff;
+            margin-top: 0.5rem;
+        }
+        
+        .camera-panel {
+            grid-column: 1 / -1;
+        }
+        
+        .camera-container {
+            position: relative;
+            background: #0a0a14;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            max-height: 400px;
+        }
+        
+        .camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .camera-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .camera-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .camera-status.online {
+            background: #00ff00;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        
+        .camera-status.offline {
+            background: #e94560;
+        }
+        
+        .camera-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 Hexapod Dashboard 
+            <span id="conn-status" class="connection-status disconnected">Disconnected</span>
+        </h1>
+    </div>
+    
+    <div class="container">
+        <!-- Camera Feed Panel -->
+        <div class="panel camera-panel">
+            <h2>📷 Camera Feed</h2>
+            <div class="camera-container">
+                <img id="camera-feed" class="camera-feed" src="" alt="Camera feed">
+                <div class="camera-overlay">
+                    <span id="camera-status-indicator" class="camera-status offline"></span>
+                    <span id="camera-status-text">Offline</span>
+                </div>
+            </div>
+            <div class="camera-controls">
+                <button class="btn btn-primary" id="camera-start">Start Camera</button>
+                <button class="btn btn-danger" id="camera-stop">Stop Camera</button>
+                <button class="btn btn-secondary" id="camera-snapshot">📸 Snapshot</button>
+            </div>
+        </div>
+        
+        <!-- Sensor Data Panel -->
+        <div class="panel">
+            <h2>📊 Sensor Data</h2>
+            <div class="sensor-grid">
+                <div class="sensor-card">
+                    <div class="sensor-label">Front Distance</div>
+                    <div class="sensor-value" id="dist-front">--</div>
+                    <div class="sensor-unit">m</div>
+                </div>
+                <div class="sensor-card">
+                    <div class="sensor-label">Left Distance</div>
+                    <div class="sensor-value" id="dist-left">--</div>
+                    <div class="sensor-unit">m</div>
+                </div>
+                <div class="sensor-card">
+                    <div class="sensor-label">Right Distance</div>
+                    <div class="sensor-value" id="dist-right">--</div>
+                    <div class="sensor-unit">m</div>
+                </div>
+            </div>
+            
+            <h2 style="margin-top: 1.5rem;">📡 IMU Data</h2>
+            <div class="imu-viz">
+                <div class="imu-axis">
+                    <div>Accel X</div>
+                    <div class="bar-container">
+                        <div class="bar" id="accel-x" style="height: 0%"></div>
+                    </div>
+                    <div id="accel-x-val">0.00</div>
+                </div>
+                <div class="imu-axis">
+                    <div>Accel Y</div>
+                    <div class="bar-container">
+                        <div class="bar" id="accel-y" style="height: 0%"></div>
+                    </div>
+                    <div id="accel-y-val">0.00</div>
+                </div>
+                <div class="imu-axis">
+                    <div>Accel Z</div>
+                    <div class="bar-container">
+                        <div class="bar" id="accel-z" style="height: 50%"></div>
+                    </div>
+                    <div id="accel-z-val">9.81</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Control Panel -->
+        <div class="panel">
+            <h2>🎮 Manual Control</h2>
+            
+            <div class="control-section">
+                <h3>Movement</h3>
+                <div class="d-pad">
+                    <button class="d-btn d-up" id="btn-up" disabled>▲</button>
+                    <button class="d-btn d-left" id="btn-left" disabled>◀</button>
+                    <button class="d-btn d-stop" id="btn-stop" disabled>■</button>
+                    <button class="d-btn d-right" id="btn-right" disabled>▶</button>
+                    <button class="d-btn d-down" id="btn-down" disabled>▼</button>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>Speed</h3>
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Linear</span>
+                        <span id="linear-speed-val">0.1 m/s</span>
+                    </div>
+                    <input type="range" id="linear-speed" min="0" max="0.3" step="0.01" value="0.1">
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Angular</span>
+                        <span id="angular-speed-val">0.5 rad/s</span>
+                    </div>
+                    <input type="range" id="angular-speed" min="0" max="1.0" step="0.1" value="0.5">
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>Gait</h3>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="gait-tripod">Tripod</button>
+                    <button class="btn btn-secondary" id="gait-wave">Wave</button>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>🎯 Person Tracking</h3>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="tracking-start">Start Tracking</button>
+                    <button class="btn btn-danger" id="tracking-stop">Stop Tracking</button>
+                </div>
+                <div id="tracking-status" style="margin-top: 0.5rem; font-size: 0.9rem; color: #888;">
+                    Status: Disabled
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>🤖 Autopilot</h3>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="ai-enable">🟢 Auto ON</button>
+                    <button class="btn btn-secondary" id="ai-disable">🔴 Manual</button>
+                </div>
+                <p style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">
+                    Auto: Robot decides | Manual: You control
+                </p>
+            </div>
+        </div>
+        
+        <!-- AI Decisions Panel -->
+        <div class="panel">
+            <h2>🧠 AI Decisions</h2>
+            <div class="log-container" id="ai-logs">
+                <div class="log-entry"><span class="log-time">--:--:--</span> Waiting for AI...</div>
+            </div>
+        </div>
+        
+        <!-- System Logs Panel -->
+        <div class="panel">
+            <h2>📝 System Logs</h2>
+            <div class="log-container" id="system-logs">
+                <div class="log-entry"><span class="log-time">--:--:--</span> Dashboard initialized</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="static/dashboard.js"></script>
+</body>
+</html>

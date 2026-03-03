@@ -109,8 +109,8 @@ ros2 topic pub /voice/czech_command std_msgs/String "data: 'otoč se doleva'"
 - `doleva`, `vlevo` - Left
 - `doprava`, `vpravo` - Right
 - `zastav`, `stop` - Stop
-- `zapni ai` - Enable AI
-- `vypni ai` - Disable AI
+- `autopilot` / `autopilot zapni` - Enable autopilot
+- `manuální režim` / `řídím já` - Disable autopilot (manual mode)
 
 ### Person Tracking
 
@@ -154,7 +154,7 @@ Features:
 - D-pad manual control
 - Speed adjustment
 - Gait selection
-- AI enable/disable
+- Autopilot / Manual mode
 - Person tracking controls
 - Real-time logs
 
