@@ -1,0 +1,65 @@
+hexapod_gait:
+  gait_controller_node:
+    ros__parameters:
+      gait_type: "tripod"
+      publish_rate: 50.0
+      body_height: 0.12
+
+hexapod_kinematics:
+  ik_solver_node:
+    ros__parameters:
+      publish_rate: 50.0
+      body_height: 0.12
+      enable_stability_control: true
+
+hexapod_hardware:
+  servo_driver_node:
+    ros__parameters:
+      use_hardware: true
+      i2c_bus: 1
+      rate: 50
+  imu_driver_node:
+    ros__parameters:
+      use_hardware: true
+      i2c_bus: 1
+      i2c_address: 0x68
+      publish_rate: 100.0
+  ultrasonic_driver_node:
+    ros__parameters:
+      use_hardware: true
+      publish_rate: 10.0
+      min_range: 0.02
+      max_range: 4.0
+  gps_driver_node:
+    ros__parameters:
+      use_hardware: true
+      port: "/dev/ttyUSB0"
+      baudrate: 9600
+      publish_rate: 1.0
+  camera_driver_node:
+    ros__parameters:
+      use_hardware: true
+      device: "/dev/video0"
+      width: 640
+      height: 480
+      fps: 30
+      stream_port: 8081
+      publish_ros_topic: true
+
+hexapod_ai:
+  ai_controller_node:
+    ros__parameters:
+      enabled: false
+      model: "anthropic/claude-3.5-sonnet"
+      decision_rate: 0.5
+      safety_stop_distance: 0.3
+      language: "en"
+  sensor_aggregator_node:
+    ros__parameters:
+      publish_rate: 5.0
+
+hexapod_web:
+  web_server_node:
+    ros__parameters:
+      port: 8080
+      rosbridge_port: 9090

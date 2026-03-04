@@ -4,6 +4,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
+from std_msgs.msg import String
 from hexapod_hardware.servo_driver import HexapodServos
 import math
 
@@ -40,6 +41,14 @@ class ServoDriverNode(Node):
             self.joint_callback,
             10
         )
+
+        # Subscriber for servo commands (e.g., zeroing)
+        self.command_sub = self.create_subscription(
+            String,
+            'servo/command',
+            self.command_callback,
+            10
+        )
         
         self.get_logger().info('Servo driver node started')
     
@@ -71,6 +80,34 @@ class ServoDriverNode(Node):
                 
             except (ValueError, IndexError) as e:
                 self.get_logger().warn(f'Failed to parse joint name {name}: {e}')
+
+    def command_callback(self, msg):
+        """Handle servo commands (zeroing)."""
+        if not self.use_hardware:
+            return
+
+        command = msg.data.lower().strip()
+
+        if command in ['zero', 'zero all', 'home', 'home all']:
+            self.get_logger().info('Zeroing all legs to neutral')
+            self.servos.set_all_neutral()
+            return
+
+        if command.startswith('zero leg'):
+            # Format: "zero leg X"
+            parts = command.split()
+            if len(parts) == 3 and parts[2].isdigit():
+                leg_id = int(parts[2])
+                if 0 <= leg_id <= 5:
+                    self.get_logger().info(f'Zeroing leg {leg_id} to neutral')
+                    self.servos.set_leg_angles(leg_id, 0.0, 0.0, 0.0)
+                else:
+                    self.get_logger().warn('Invalid leg id (0-5)')
+            else:
+                self.get_logger().warn('Invalid command format. Use: "zero leg X"')
+            return
+
+        self.get_logger().warn(f'Unknown servo command: {command}')
     
     def destroy_node(self):
         """Cleanup on shutdown."""

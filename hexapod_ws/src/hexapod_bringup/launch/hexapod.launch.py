@@ -80,6 +80,13 @@ def generate_launch_description():
         ])
     ])
     
+    # Config file
+    config_file = PathJoinSubstitution([
+        FindPackageShare('hexapod_bringup'),
+        'config',
+        'hexapod.yaml'
+    ])
+
     # Robot State Publisher
     robot_state_pub = Node(
         package='robot_state_publisher',
@@ -92,7 +99,7 @@ def generate_launch_description():
         package='hexapod_hardware',
         executable='servo_driver_node.py',
         name='servo_driver',
-        parameters=[{'use_hardware': use_hardware}]
+        parameters=[config_file, {'use_hardware': use_hardware}]
     )
     
     # IMU Driver Node
@@ -100,7 +107,7 @@ def generate_launch_description():
         package='hexapod_hardware',
         executable='imu_driver_node.py',
         name='imu_driver',
-        parameters=[{'use_hardware': use_hardware}]
+        parameters=[config_file, {'use_hardware': use_hardware}]
     )
     
     # Ultrasonic Driver Node
@@ -108,7 +115,7 @@ def generate_launch_description():
         package='hexapod_hardware',
         executable='ultrasonic_driver_node.py',
         name='ultrasonic_driver',
-        parameters=[{'use_hardware': use_hardware}]
+        parameters=[config_file, {'use_hardware': use_hardware}]
     )
     
     # GPS Driver Node
@@ -116,7 +123,7 @@ def generate_launch_description():
         package='hexapod_hardware',
         executable='gps_driver_node.py',
         name='gps_driver',
-        parameters=[{'use_hardware': use_hardware}]
+        parameters=[config_file, {'use_hardware': use_hardware}]
     )
     
     # IK Solver Node
@@ -131,7 +138,7 @@ def generate_launch_description():
         package='hexapod_gait',
         executable='gait_controller_node.py',
         name='gait_controller',
-        parameters=[{'gait_type': gait_type}]
+        parameters=[config_file, {'gait_type': gait_type}]
     )
     
     # Sensor Aggregator Node (for AI)
@@ -146,7 +153,7 @@ def generate_launch_description():
         package='hexapod_ai',
         executable='ai_controller_node.py',
         name='ai_controller',
-        parameters=[{
+        parameters=[config_file, {
             'model': ai_model,
             'enabled': use_ai,
         }]
@@ -172,7 +179,7 @@ def generate_launch_description():
         package='hexapod_hardware',
         executable='camera_driver_node.py',
         name='camera_driver',
-        parameters=[{
+        parameters=[config_file, {
             'use_hardware': use_camera,
             'stream_port': 8081,
         }]

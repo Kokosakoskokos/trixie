@@ -51,8 +51,8 @@ source install/setup.bash
 ### Launch Robot
 
 ```bash
-# Full system with hardware
-ros2 launch hexapod_bringup hexapod.launch.py use_hardware:=true
+# Simple start command
+./start_hexapod.sh
 
 # Simulation mode (no hardware)
 ros2 launch hexapod_bringup simulation.launch.py
@@ -159,6 +159,11 @@ Features:
 - Real-time logs
 
 ## Configuration
+
+All runtime settings live in:
+`src/hexapod_bringup/config/hexapod.yaml`
+
+Edit this file to change gait, camera, AI, sensors, and rates.
 
 ### Servo Calibration
 

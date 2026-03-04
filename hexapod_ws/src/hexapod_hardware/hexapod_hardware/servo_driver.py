@@ -111,6 +111,17 @@ class HexapodServos:
         4: {'coxa': 0, 'femur': 0, 'tibia': 0},
         5: {'coxa': 0, 'femur': 0, 'tibia': 0},
     }
+
+    # Joint limits (radians) for each leg/joint: min, max
+    # Tune per mechanical limits to avoid binding.
+    JOINT_LIMITS = {
+        0: {'coxa': (-1.57, 1.57), 'femur': (-1.57, 1.57), 'tibia': (-2.0, 0.5)},
+        1: {'coxa': (-1.57, 1.57), 'femur': (-1.57, 1.57), 'tibia': (-2.0, 0.5)},
+        2: {'coxa': (-1.57, 1.57), 'femur': (-1.57, 1.57), 'tibia': (-2.0, 0.5)},
+        3: {'coxa': (-1.57, 1.57), 'femur': (-1.57, 1.57), 'tibia': (-2.0, 0.5)},
+        4: {'coxa': (-1.57, 1.57), 'femur': (-1.57, 1.57), 'tibia': (-2.0, 0.5)},
+        5: {'coxa': (-1.57, 1.57), 'femur': (-1.57, 1.57), 'tibia': (-2.0, 0.5)},
+    }
     
     def __init__(self, bus_num=1):
         self.pca40 = PCA9685(bus_num, 0x40)
@@ -119,6 +130,10 @@ class HexapodServos:
     
     def angle_to_servo(self, leg_id, joint, angle_rad):
         """Convert joint angle (radians) to servo angle (degrees)."""
+        # Clamp to joint limits
+        joint_min, joint_max = self.JOINT_LIMITS[leg_id][joint]
+        angle_rad = max(joint_min, min(joint_max, angle_rad))
+
         # Convert rad to deg
         angle_deg = math.degrees(angle_rad)
         
